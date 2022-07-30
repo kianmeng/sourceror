@@ -18,15 +18,17 @@ jobs:
           - elixir: 1.13.4
             otp: 23.3
             run_dialyzer: true
+          - elixir: 1.13.4
+            otp: 24.3
+          - elixir: 1.13.4
+            otp: 25.0.2
             check_formatted: true
             run_credo: true
             run_coveralls: true
-          - elixir: 1.13.4
-            otp: 24.3
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
-        uses: actions/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
@@ -44,9 +46,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: priv/plts
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt-${{ hashFiles('**/priv/plts/dialyzer.plt.hash') }}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt-${{ hashFiles('**/priv/plts/dialyzer.plt.hash') }}
             ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plt
 
       - name: Install dependencies
@@ -57,7 +58,7 @@ jobs:
         if: matrix.check_formatted
 
       - name: Run dialyzer
-        run: mix dialyzer
+        run: mix dialyzer --format github
         if: matrix.run_dialyzer
 
       - name: Run credo
